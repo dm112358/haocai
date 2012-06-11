@@ -1,0 +1,6 @@
+development:
+  sessions:
+    default:
+      database: playweibo_development
+      hosts:
+        - localhost:27017

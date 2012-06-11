@@ -7,7 +7,7 @@ index = 1
 get_list_page_urls.each do |url| # 获取列表页URL列表进行循环
 
   1.upto(10).each do |i| # 翻页1..N
-    html = get_list_page_html(url + "&curr_page=#{i}")
+    html = get_list_page_html(url + "#{i}" + '.html')
     content_url_list = parse_list_page_html(html)
     content_url_list.each do |item|
       puts "list page number=#{i}"

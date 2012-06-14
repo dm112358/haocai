@@ -2,11 +2,11 @@ require './helper_51job.rb'
 
 include Helper51job
 
-total_item_index = 1
+total_item_index = 0
 
 get_list_page_urls.each do |url| # 获取列表页URL列表进行循环
 
-  page_index = 1
+  page_index = 0
   while true
     page_index += 1
     url = url + "#{page_index}" + '.html'
@@ -28,6 +28,7 @@ get_list_page_urls.each do |url| # 获取列表页URL列表进行循环
 
         content_page_html = get_content_page_html(item[:url])
         if content_page_html != nil
+          total_item_index += 1
           content_item = parse_content_page_html(content_page_html)
 
           puts "\t\ttelephone = #{content_item[:telephone]}"
@@ -41,7 +42,7 @@ get_list_page_urls.each do |url| # 获取列表页URL列表进行循环
 
 
 
-          total_item_index += 1
+          
 
           puts ""
           puts ""

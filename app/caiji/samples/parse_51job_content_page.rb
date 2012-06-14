@@ -1151,28 +1151,38 @@ for(var i = 0;i < coidArr.length; i++){
 </script>
 HTML_str
 
-def parse_html(html)  
-  doc = Nokogiri::HTML(html)
-  content_item = {}
-  content_item[:name] = doc.at_css('td.sr_bt').text
-  content_item[:description] = doc.at_css("p.txt_font").inner_html 
-  content_item[:address] = nil
-  content_item[:telephone] = nil
-  content_item[:fax] = nil
-  doc.css("p.txt_font1").each do |item|
-   if item.text.strip[0] == "地"
-     address = item.text.gsub(/具\.+/, '')
-   content_item[:address] = address.strip.split(/：/)[1]
-   end
-    if item.text.strip[0] == "电"
-      content_item[:telephone] = item.text.strip.split(/：/)[1]
+  # 根据HTML分析出信息内容
+  def parse_content_page_html(html)
+    content_item = {}
+    begin
+      doc = Nokogiri::HTML(html)
+      content_item[:name] = doc.at_css('td.sr_bt').text
+      content_item[:description] = doc.at_css("p.txt_font").inner_html 
+      content_item[:address] = nil
+      content_item[:telephone] = nil
+      content_item[:fax] = nil
+      doc.css("p.txt_font1").each do |item|
+        if item.text.strip[0] == "地"
+          address = item.text.gsub(/具\.+/, '')
+          content_item[:address] = address.strip.split(/：/)[1]
+        end
+        content_item[:telephone] = item.text.strip.split(/：/)[1] if item.text.strip[0] == "电"
+        content_item[:fax] = item.text.strip.split(/：/)[1] if item.text.strip[0] == "传"
+      end
+    rescue
+      puts 'error on parsing content page html'
     end
-    if item.text.strip[0] == "传"
-      content_item[:fax] = item.text.strip.split(/：/)[1]
-    end
+    return content_item
   end
-  return content_item
-end
 
 #puts html
-puts parse_html(html)
+item = parse_content_page_html(html)
+puts item[:name]
+puts ""
+puts item[:description]
+puts ""
+puts item[:address]
+puts ""
+puts item[:telephone]
+puts ""
+puts item[:fax]

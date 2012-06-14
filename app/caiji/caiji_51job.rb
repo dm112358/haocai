@@ -4,17 +4,17 @@ include Helper51job
 
 total_item_index = 0
 
-get_list_page_urls.each do |url| # 获取列表页URL列表进行循环
+get_list_page_urls.each do |url_without_page_index| # 获取列表页URL列表进行循环
 
   page_index = 0
   while true
     page_index += 1
-    url = url + "#{page_index}" + '.html'
+    list_page_url = url_without_page_index + "#{page_index}" + '.html'
 
     puts "list page number = #{page_index}"
-    puts "#{url}"
+    puts "list page url = #{list_page_url}"
 
-    list_page_html = get_list_page_html(url)
+    list_page_html = get_list_page_html(list_page_url)
     if list_page_html != nil
       content_page_url_list = parse_list_page_html(list_page_html)
       if content_page_url_list.length == 0
@@ -22,7 +22,7 @@ get_list_page_urls.each do |url| # 获取列表页URL列表进行循环
       end
       content_page_url_list.each do |item|
         
-        puts "\ttotal item idex = #{total_item_index}"
+        puts "\ttotal item index = #{total_item_index}"
         puts "\t#{item[:name]}"
         puts "\t#{item[:url]}"
 

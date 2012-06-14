@@ -50,22 +50,27 @@ module Helper51job
       html.encode!("utf-8", "gbk")
     rescue OpenURI::HTTPError => ex
       puts "can't get url: #{url}"
+      html = nil
     end
     return html
   end
 
   # 从HTML中分析出内容页URL列表
   def parse_list_page_html(html)
-    doc = Nokogiri::HTML.parse(html)
     url_list = []
-    doc.css('td.td2 a.coname').map.each do |item|
-      company_name = '' + item.text
-      company_url = item['href']
-      t = {}
-      t[:name] = company_name
-      t[:url] = company_url
-      url_list.push(t)
-    end  
+    begin
+      doc = Nokogiri::HTML.parse(html)
+      doc.css('td.td2 a.coname').map.each do |item|
+        company_name = '' + item.text
+        company_url = item['href']
+        t = {}
+        t[:name] = company_name
+        t[:url] = company_url
+        url_list.push(t)
+      end  
+    rescue
+      puts 'error on parsing list page html'
+    end
     url_list
   end
   
@@ -78,30 +83,31 @@ module Helper51job
       html.encode!("utf-8", "gbk")
     rescue OpenURI::HTTPError => ex
       puts "can't get url: #{url}"
+      html = nil
     end
     return html
   end
   
   # 根据HTML分析出信息内容
   def parse_content_page_html(html)
-    doc = Nokogiri::HTML(html)
     content_item = {}
-    content_item[:name] = doc.at_css('td.sr_bt').text
-    content_item[:description] = doc.at_css("p.txt_font").inner_html 
-    content_item[:address] = nil
-    content_item[:telephone] = nil
-    content_item[:fax] = nil
-    doc.css("p.txt_font1").each do |item|
-     if item.text.strip[0] == "地"
-       address = item.text.gsub(/具\.+/, '')
-     content_item[:address] = address.strip.split(/：/)[1]
-     end
-      if item.text.strip[0] == "电"
-        content_item[:telephone] = item.text.strip.split(/：/)[1]
+    begin
+      doc = Nokogiri::HTML(html)
+      content_item[:name] = doc.at_css('td.sr_bt').text
+      content_item[:description] = doc.at_css("p.txt_font").inner_html 
+      content_item[:address] = nil
+      content_item[:telephone] = nil
+      content_item[:fax] = nil
+      doc.css("p.txt_font1").each do |item|
+        if item.text.strip[0] == "地"
+          address = item.text.gsub(/具\.+/, '')
+          content_item[:address] = address.strip.split(/：/)[1]
+        end
+        content_item[:telephone] = item.text.strip.split(/：/)[1] if item.text.strip[0] == "电"
+        content_item[:fax] = item.text.strip.split(/：/)[1] if item.text.strip[0] == "传"
       end
-      if item.text.strip[0] == "传"
-        content_item[:fax] = item.text.strip.split(/：/)[1]
-      end
+    rescue
+      puts 'error on parsing content page html'
     end
     return content_item
   end

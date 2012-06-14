@@ -9,7 +9,7 @@ require 'open-uri'
       html_stream = open(url)
       html = html_stream.read
       html.encode!("utf-8", "gbk")
-    rescue OpenURI::HTTPError => ex
+    rescue
       puts "can't get url: #{url}"
       html = nil
     end

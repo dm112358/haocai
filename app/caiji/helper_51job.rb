@@ -40,19 +40,16 @@ module Helper51job
     #urls.push 'http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=0000&district=0000&funtype=0000&industrytype=00&issuedate=9&providesalary=99&keyword=%E8%AE%A1%E7%AE%97%E6%9C%BA&keywordtype=0&lang=c&stype=2&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=01&lonlat=0%2C0&radius=-1&ord_field=0&list_type=0&fromType=14'
     return urls
   end
+  
+  # 根据 参数生成 列表页URl
+  def list_url(url, page_index)
+    url + "#{page_index}" + ".html"
+  end
+
 
   # 根据URL获取列表页HTML
-  def get_list_page_html(url)
-    html = ""
-    begin
-      html_stream = open(url)
-      html = html_stream.read
-      html.encode!("utf-8", "gbk")
-    rescue
-      puts "can't get url: #{url}"
-      html = nil
-    end
-    return html
+  def get_list_page_html(url, from_encode ="gbk", to_encode = "utf-8")
+		safe_open(url, retries = 5, sleep_time =0.42, headers ={})
   end
 
   # 从HTML中分析出内容页URL列表
@@ -76,16 +73,7 @@ module Helper51job
   
   # 根据URL获取内容页HTML
   def get_content_page_html(url)
-    html = ""
-    begin
-      html_stream = open(url)
-      html = html_stream.read
-      html.encode!("utf-8", "gbk")
-    rescue
-      puts "can't get url: #{url}"
-      html = nil
-    end
-    return html
+	  safe_open(url, retries = 5, sleep_time =0.42, headers ={})
   end
   
   # 根据HTML分析出信息内容

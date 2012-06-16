@@ -1,6 +1,7 @@
 #encoding: UTF-8
 require './helper_51job.rb'
 require './common_helper.rb'
+require 'pp'
 class Caiji51job
 
 	include Helper51job
@@ -29,11 +30,6 @@ class Caiji51job
 		end
 	end
 
-	#生成当前列表页url
-	def list_url(url, page_index)
-		url + "#{page_index}" + '.html'
-	end
-
 	#输出 内容页 内容
 	def output_content(list_urls)
 		list_urls.each do |s|
@@ -41,11 +37,10 @@ class Caiji51job
 			content_page_html = get_content_page_html(s[:url])
 			
 			if content_page_html != nil
-						content_item = parse_content_page_html(content_page_html)
-						puts "\t第#{@totle_item_num += 1}条"	
-						puts "\t\ttelephone = #{content_item[:telephone]}"
-						puts "\t\tfax = #{content_item[:fax]}"
-						puts "\t\taddress = #{content_item[:address]}"		  
+				content_item = parse_content_page_html(content_page_html)
+				puts "\n=#{@totle_item_num += 1}" + "~"*35
+				pp content_item
+
 			end
 				
 		end

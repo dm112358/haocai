@@ -15,6 +15,7 @@ module CommonHelper
 				#错误日志
         #TODO Logging..  
       end  
+			nil
   
     end
   end

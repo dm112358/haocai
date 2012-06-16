@@ -1,6 +1,7 @@
-#encoding=utf-8
+#encoding: utf-8
 
 require 'nokogiri'
+require 'pp'
 
 html=<<HTML_str
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -592,7 +593,7 @@ html=<<HTML_str
 
             <p class="txt_font">北京旌旗智远商业经纪有限公司为北京市集团性质的公司，是新疆海川新盟商品交易股份有限公司驻北京办事处。同时也为山东寿光蔬菜产业集团（天津）商品交易所在北京地区服务中心。<br>公司秉承积极、奋进、仁爱、团结的经营理念，立足北京，面向全国市场，为热爱金融行业，有志成为顶尖操盘手，有志创业的人士打造最佳的发展平台。<br>本集团公司在业界有十多年的专业团队运作经验，在全国有着良好的口碑和声望，培养了业界众多的精英，为推动行业发展和繁荣做出了不朽的贡献。<br>&nbsp;&nbsp;&nbsp;公司一直把人才的发掘和战略储备作为公司发展的第一要务，发现人才并培养人才是公司始终不渝的发展理念。在未来的3年内在北京乃至全国开立众多的分公司积极的发现人才和储备人才为目前公司的重大战略。</p>
 
-            <p class="pot2"></p><p class="txt_font1">联&nbsp;系&nbsp;人：丁小姐</p><p class="txt_font1">电&nbsp;&nbsp;&nbsp;&nbsp;话：(010)63453006</p><p class="txt_font1">传&nbsp;&nbsp;&nbsp;&nbsp;真：(010)63453006</p><p class="txt_font1">地&nbsp;&nbsp;&nbsp;&nbsp;址：北京市西城区南滨河路27号贵都国际中心A座1910<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0);" class="mapurlfont" style="color:#256db9;" onclick="smsEntry('http://my.51job.com','2794144'); return false;"><img src="http://img01.51jobcdn.com/im/2009/search/ico-phone.gif" align="absmiddle" style="margin-right:5px" />发送到手机</a></p><p class="txt_font1">邮政编码：100055</p>
+            <p class="pot2"></p><p class="txt_font1">公司网址：<a href="http://www.test.com">http://www.test.com</a></p> <p class="txt_font1">联&nbsp;系&nbsp;人：丁小姐</p><p class="txt_font1">电&nbsp;&nbsp;&nbsp;&nbsp;话：(010)63453006</p><p class="txt_font1">传&nbsp;&nbsp;&nbsp;&nbsp;真：(010)63453006</p><p class="txt_font1">地&nbsp;&nbsp;&nbsp;&nbsp;址：北京市西城区南滨河路27号贵都国际中心A座1910<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0);" class="mapurlfont" style="color:#256db9;" onclick="smsEntry('http://my.51job.com','2794144'); return false;"><img src="http://img01.51jobcdn.com/im/2009/search/ico-phone.gif" align="absmiddle" style="margin-right:5px" />发送到手机</a></p><p class="txt_font1">邮政编码：100055</p>
 
           </div>
 
@@ -1150,13 +1151,47 @@ for(var i = 0;i < coidArr.length; i++){
 
 </script>
 HTML_str
+class String  
+    def br_to_new_line  
+        self.gsub('<br>', "\n")  
+    end  
+    def strip_tag  
+        self.gsub(%r[<[^>]*>], '')  
+    end  
+		def strip_all_tag
+			self.gsub(%r[<.*>], '')
+		end
+		def strip_51job_tag
+			self.gsub(%r[<br.*], '').gsub(%r[<[^>]*>], '')
+		end
+end #String 
 
   # 根据HTML分析出信息内容
   def parse_content_page_html(html)
-    content_item = {}
+ 	  doc = Nokogiri::HTML(html)
+		@name = doc.at_css('td.sr_bt').inner_html.strip_all_tag.to_s.strip
+		@main = doc.css("table.jobs_1 tr")[1].inner_html.br_to_new_line.strip_tag
+		@main += doc.at_css("p.txt_font").inner_html.br_to_new_line.strip_tag
+
+  	rows = doc.css("p.txt_font1")
+		#puts rows.length
+		@details = rows.collect do |row|
+		#	puts  row.inner_html.strip_all_tag
+			detail = {}
+			[
+				[:name, 0],
+				[:value, 1],
+			].each do |name, cc|
+				detail[name] = row.inner_html.strip_51job_tag.split(/[：]/)[cc]
+			end
+			detail
+		end
+
+   content_item = {}
     begin
-      doc = Nokogiri::HTML(html)
-      content_item[:name] = doc.at_css('td.sr_bt').text
+
+
+    content_item[:name] = doc.at_css('td.sr_bt').text
       content_item[:description] = doc.at_css("p.txt_font").inner_html 
       content_item[:address] = nil
       content_item[:telephone] = nil
@@ -1177,6 +1212,10 @@ HTML_str
 
 #puts html
 item = parse_content_page_html(html)
+pp @name
+pp @main
+pp @details
+puts "==============="
 puts item[:name]
 puts ""
 puts item[:description]

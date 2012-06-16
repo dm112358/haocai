@@ -4,7 +4,22 @@ require 'nokogiri'
 require 'open-uri'
 require './common_helper.rb'
 require './models_init.rb'
+class String  
+    def br_to_new_line  
+        self.gsub('<br>', "\n")  
+    end  
+    def strip_tag  
+        self.gsub(%r[<[^>]*>], '')  
+    end  
+		def strip_all_tag
+			self.gsub(%r[<.*>], '')
+		end
+		def strip_51job_tag
+			self.gsub(%r[<br.*], '').gsub(%r[<[^>]*>], '')
+		end
+end #String 
 
+ 
 module Helper51job
 
   # 获取列表页URL数组
@@ -49,9 +64,13 @@ module Helper51job
 
   # 根据URL获取列表页HTML
   def get_list_page_html(url, from_encode ="gbk", to_encode = "utf-8")
-		safe_open(url, retries = 5, sleep_time =0.42, headers ={})
+		safe_open(url, retries = 5, sleep_time =0.42, headers ={}, from_encode , to_encode )
   end
-
+  # 根据URL获取内容页HTML
+  def get_content_page_html(url)
+	  safe_open(url, retries = 5, sleep_time =0.42, headers ={})
+  end
+ 
   # 从HTML中分析出内容页URL列表
   def parse_list_page_html(html)
     url_list = []
@@ -71,29 +90,30 @@ module Helper51job
     url_list
   end
   
-  # 根据URL获取内容页HTML
-  def get_content_page_html(url)
-	  safe_open(url, retries = 5, sleep_time =0.42, headers ={})
-  end
-  
+ 
   # 根据HTML分析出信息内容
   def parse_content_page_html(html)
     content_item = {}
     begin
       doc = Nokogiri::HTML(html)
-      content_item[:name] = doc.at_css('td.sr_bt').text
-      content_item[:description] = doc.at_css("p.txt_font").inner_html 
-      content_item[:address] = nil
-      content_item[:telephone] = nil
-      content_item[:fax] = nil
-      doc.css("p.txt_font1").each do |item|
-        if item.text.strip[0] == "地"
-          address = item.text.gsub(/具\.+/, '')
-          content_item[:address] = address.strip.split(/：/)[1]
-        end
-        content_item[:telephone] = item.text.strip.split(/：/)[1] if item.text.strip[0] == "电"
-        content_item[:fax] = item.text.strip.split(/：/)[1] if item.text.strip[0] == "传"
-      end
+      content_item[:name] = doc.at_css('td.sr_bt').inner_html.strip_all_tag.to_s.strip
+			content_item[:description] = doc.css("table.jobs_1 tr")[1].inner_html.br_to_new_line.strip_tag
+		  content_item[:description]  += doc.at_css("p.txt_font").inner_html.br_to_new_line.strip_tag
+
+			rows = doc.css("p.txt_font1")
+			@details = rows.collect do |row|
+				detail = {}
+				[
+					[:name, 0],
+					[:value, 1],
+				].each do |name, cc|
+					detail[name] = row.inner_html.strip_51job_tag.split(/[：]/)[cc]
+				end
+				detail
+			end
+			
+			content_item[:contacts] = @details
+
     rescue
       puts 'error on parsing content page html'
     end

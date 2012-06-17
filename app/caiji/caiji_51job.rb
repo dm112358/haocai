@@ -14,7 +14,7 @@ class Caiji51job
 		end
 	end
 
-	def get_from_list_url(url, page_index = 0)
+	def get_from_list_url(url, page_index = 1)
 		#当前列表页地址
 		current_url = list_url(url, page_index)
 		#读取 当前列表页 页面内容=>得到内容页面地址

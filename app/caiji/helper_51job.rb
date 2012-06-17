@@ -48,8 +48,9 @@ module Helper51job
 
     urls = []
 
-    list.each do |job_area_item|
-      urls.push 'http://search.51job.com/list/' + job_area_item[:value] + ',0000,0000,00,3,99,%2B,2,'
+    list.each do |area|
+#      urls.push 'http://search.51job.com/list/' + area[:value] + ',0000,0000,00,3,99,%2B,2,'
+			urls << 'http://search.51job.com/list/' + area[:value] +  '00%252C00,000000,0000,00,3,99,%2B,2,'
     end
     #urls.push 'http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=0000&district=0000&funtype=0000&industrytype=00&issuedate=9&providesalary=99&keyword=%E9%93%B6%E8%A1%8C&keywordtype=0&lang=c&stype=2&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=01&lonlat=0%2C0&radius=-1&ord_field=0&list_type=0&fromType=14'
     #urls.push 'http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=0000&district=0000&funtype=0000&industrytype=00&issuedate=9&providesalary=99&keyword=%E8%AE%A1%E7%AE%97%E6%9C%BA&keywordtype=0&lang=c&stype=2&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=01&lonlat=0%2C0&radius=-1&ord_field=0&list_type=0&fromType=14'
